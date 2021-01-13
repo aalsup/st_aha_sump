@@ -98,8 +98,6 @@ struct config_settings_t {
     uint16_t hubPort;
 };
 
-String callbackData;
-
 //******************************************************************************************
 // ESP8266 WiFi Information
 //******************************************************************************************
@@ -242,42 +240,6 @@ void callback(const String& msg)
 {
     Serial.print(F("ST_Anything Callback: Sniffed data = "));
     Serial.println(msg);
-
-    // Check if ultrasonic1 is posting an update to SmartThings
-    if (msg.startsWith("ultrasonic1")) 
-    {
-        // global variable, reserved buffer
-        callbackData = msg.substring(msg.indexOf(' '));
-        callbackData.trim();
-
-        Serial.print(F("Ultrasonic value: "));
-        Serial.println(callbackData);
-
-        if (callbackData.length() > 0)
-        {
-            // data maybe a float, but PS_Water expects an integer
-            int sensorValue = (int)round(callbackData.toFloat());
-            st::Device *device = st::Everything::getDeviceByName("water1");
-            if (device != NULL) 
-            {
-                Serial.print("Setting water device to value ");
-                Serial.println(sensorValue);
-                st::PS_Water *water = (st::PS_Water *)device;
-                // water->setSensorValue(sensorValue);
-            }
-            else 
-            {
-                Serial.println(F("Unable to find device 'water1'"));
-            }
-
-            callbackData.remove(0);
-        }
-        else
-        {
-            Serial.println("No sensor value available");
-        }
-        
-    }
 }
 
 //******************************************************************************************
@@ -288,8 +250,6 @@ void setup() {
     delay(100);
 
     Serial.println("Starting device...");
-
-    callbackData.reserve(100);
 
     //******************************************************************************************
     // Declare each Device that is attached to the Arduino
@@ -316,12 +276,9 @@ void setup() {
     //           specific use case in the ST Phone Application.
     //******************************************************************************************
     const unsigned int POLLING_INTERVAL_SEC = 60;
-    const int WATER_LIMIT_CM = 20;
 
     // Polling Sensors
     static st::PS_Ultrasonic sensor1(F("ultrasonic1"), POLLING_INTERVAL_SEC, 0, PIN_ULTRASONIC_T, PIN_ULTRASONIC_E);
-    //static st::PS_Water sensor2(F("water1"), POLLING_INTERVAL_SEC, 5 * 1000, WATER_LIMIT_CM, true);
-    static st::PS_Water sensor2(F("water1"), POLLING_INTERVAL_SEC, 5 * 1000, 0, WATER_LIMIT_CM, true);
 
     // Interrupt Sensors
 
@@ -378,7 +335,6 @@ void setup() {
     // Add each sensor to the "Everything" Class
     //*****************************************************************************
     st::Everything::addSensor(&sensor1);
-    st::Everything::addSensor(&sensor2);
 
     //*****************************************************************************
     // Add each executor to the "Everything" Class
