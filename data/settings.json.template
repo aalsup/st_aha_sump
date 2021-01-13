@@ -1,0 +1,11 @@
+{
+    "ssid": "XXXX",
+    "password": "XXXX",
+    "ip": "192.168.x.y",
+    "gateway": "192.168.x.y",
+    "subnet": "255.255.255.0",
+    "dnsserver": "192.168.x.y",
+    "serverPort": 8090,
+    "hubIp": "192.168.x.y",
+    "hubPort": 39500
+  }
